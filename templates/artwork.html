@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Works
+{% endblock %}
+
+{% block main %}
+
+<script>
+   // execute function when the DOM is fully loaded
+	document.addEventListener("DOMContentLoaded", function() {
+
+      // select all "stars", which is the bar for current user rating, individually
+      let stars = document.querySelectorAll(".stars span");
+      // read my_stars, i.e. existing rating for current user, from app.py, using json
+		var my_stars = {{ my_stars | tojson | safe }};
+      // read the boolean disable_rating_button from app.py
+		var disable_rating_button = {{ disable_rating_button | tojson | safe }};
+
+      // if there IS exising rating, we print it in the first bar of stars
+		if (my_stars !== null) {
+			for (let star of stars) {
+            // we "print" by finding the star associated with the numeric rating, and colouring it and all its predecessors (see CSS file)
+				if (star.dataset.rating === String(my_stars)) {
+					star.setAttribute("data-clicked", "true");
+				}
+			}
+
+      // if there IS NO existing rating, run function that allows user to submit a rating
+		} else {
+			for (let star of stars) {
+				// the function is triggered on-click
+				star.addEventListener("click", function() {
+					// to allow the interface to respond to however many tries from the user before submitting,
+               // each time a click is heard we first initialise all stars to gray
+					for (let star of stars) {
+						star.setAttribute("data-clicked", "false");
+					}
+					// where "this" refers to the star that was clicked, we set the value of "clicked" to "true"
+					this.setAttribute("data-clicked", "true");
+					// store the user rating, which will be submitted to app.py to process
+					let rating = this.dataset.rating;
+               // also store the artwork id for app.py to process, which is associated with the parentElement i.e. SET of stars
+					let id = this.parentElement.dataset.id;
+               // submit star ratings form (see below), setting values with js
+					var form_rating = document.getElementById("rating");
+					form_rating.value = rating;
+					var form_artwork = document.getElementById("artwork");
+					form_artwork.value = id;
+				});
+			}
+		}
+
+      // select all "stars", which is the bar for average user rating, individually
+		let stars2 = document.querySelectorAll(".stars2 span");
+      // read avg_rating from app.py, using json
+		var avg_rating = {{ avg_rating | tojson | safe}};
+
+      // if there IS average rating
+		if (avg_rating !== null) {
+			for (let star of stars2) {
+            // "print" the rating, as before
+				if (star.dataset.rating === String(avg_rating)) {
+					star.setAttribute("data-clicked", "true");
+				}
+			}
+		}
+
+      // set status of submit/delete buttons, mutually exclusive
+		var rating_button = document.getElementById("rating_button");
+      // use (the value of) disable_rating_button from app.py
+		rating_button.disabled = disable_rating_button;
+		delete_rating_button.disabled = !disable_rating_button;
+
+	})
+</script>
+
+<body></body>
+   <main class="container-fluid py-5 text-center">
+
+      <div class="artwork-container">
+         <!-- artwork image -->
+         <img src="{{url_for('static', filename=artwork.image_path)}}" alt="artwork" style="max-width: 1000px; height: auto; margin: 10px;">
+
+         <div class="artwork-descript">
+
+            <p style = "font-family: 'Bebas Neue', sans-serif; font-size: 500%; line-height: 1.1; color: #FA5F55;">{{artwork.name}}</p>
+            <p>{{artwork.artist}}</p>
+            <p>{{artwork.year}}</p>
+            <p>{{artwork.descript}}</p>
+
+
+            <div class="block" style="width: 100%;">
+
+               <!-- user review form area -->
+               <form action="/review" method="post" id="rating_form">
+                  <p class="heading">Add a review: </p>
+                  <input type="hidden" id="rating" name="rating" value="0">
+                  <input type="hidden" id="artwork" name="artwork" value="0">
+
+                  <!-- first bar of stars -->
+                  <div class="rating-box" style="margin-bottom: 10px;">
+                     <!-- nb the artwork id is noted here -->
+                     <div data-id="{{artwork.artwork_id}}" class="stars">
+                        <!-- nb the numeric rating is attached to each star -->
+                        <span data-rating="5">&#9733;</span>
+                        <span data-rating="4">&#9733;</span>
+                        <span data-rating="3">&#9733;</span>
+                        <span data-rating="2">&#9733;</span>
+                        <span data-rating="1">&#9733;</span>
+                     </div>
+                  </div>
+
+                  <!-- comment box -->
+                  <div style="margin-bottom: 20px;">
+                     <input autocomplete="off" id="comment_box" class="form-control mx-auto w-100" name="comment" placeholder="Comment" type="text">
+                     <input type="hidden" name="artwork_id" value="{{artwork.artwork_id}}">
+                  </div>
+                  <!-- button for submitting rating + comment -->
+                  <button style="margin-bottom: 10px;" class="btn btn-dark" id="rating_button" type="submit">Submit</button>
+               </form>
+
+               <!-- review deletion form with button -->
+               <form action="/deletereview" method="post" id="delete_rating">
+                  <button style="margin-bottom: 10px;" class="btn btn-dark" id="delete_rating_button" type="submit">Delete</button>
+                  <input type="hidden" id="artwork_for_delete" name="artwork_for_delete" value="{{artwork.artwork_id}}">
+               </form>
+
+            </div>
+
+
+            <div class="block" id="rated">
+               <!-- display average rating -->
+               <p class="heading">Rating: </p>
+               <div class="rating-box" style="margin-bottom: 10px;">
+                  <div class="stars2">
+                     <span data-rating="5">&#9733;</span>
+                     <span data-rating="4">&#9733;</span>
+                     <span data-rating="3">&#9733;</span>
+                     <span data-rating="2">&#9733;</span>
+                     <span data-rating="1">&#9733;</span>
+                  </div>
+               </div>
+            </div>
+
+
+            <div class="block">
+               <!-- display current user's comment -->
+               <p class="heading">My comments:</p>
+               {% if show_comment %}
+               {% for comment in show_comment %}
+               <p>{{ comment["comment"] }}</p>
+               {% endfor %}
+               {% else %}
+               <p class="nocomment">You haven't posted any comments yet</p>
+               {% endif %}
+            </div>
+
+
+            <div class="block">
+               <!-- display other users' comments -->
+               <p class="heading">Comments:</p>
+               {% if show_other_comment %}
+               {% for comment in show_other_comment %}
+               <p>{{ comment["username"] }} said: {{ comment["comment"] }}</p>
+               {% endfor %}
+               {% else %}
+               <p class="nocomment">No comments yet</p>
+               {% endif %}
+               </p>
+            </div>
+
+         </div>
+
+
+      </div>
+
+
+   </main>
+</body>
+{% endblock %}

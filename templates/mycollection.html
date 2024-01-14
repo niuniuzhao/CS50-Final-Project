@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+My Collection
+{% endblock %}
+
+{% block main %}
+<div class="table-container">
+   <table class="table">
+      <thead>
+         <tr>
+            <th class="text-top">Title</th>
+            <th class="text-top">Artist</th>
+            <th class="text-top">Year</th>
+            <th class="text-top">My Rating</th>
+            <th class="text-top">My Comment</th>
+            <th class="text-top">Snapshot</th>
+            <th class="text-top">Timestamp</th>
+         </tr>
+      </thead>
+      <tbody>
+         {% for item in log %}
+         <tr>
+            <td><a href="/artwork/{{item.artwork_id}}" class="text-title">{{item.name}}</a></td>
+            <td class="text-table">{{item.artist}}</td>
+            <td class="text-table">{{item.year}}</td>
+            <td class="text-table">{{item.rating}}</td>
+            <td class="text-table">{{item.comment}}</td>
+            <td><img src="{{url_for('static', filename=item.image_path)}}" alt="artwork" style="max-width: 300px; height: auto;"></td>
+            <td class="text-table">{{item.timestamp}}</td>
+         </tr>
+         {% endfor %}
+      </tbody>
+   </table>
+</div>
+{% endblock %}

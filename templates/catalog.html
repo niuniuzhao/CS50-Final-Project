@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Catalog
+{% endblock %}
+
+{% block main %}
+
+<script>
+   // script for search & filter feature
+
+   // execute function when the DOM is fully loaded
+	document.addEventListener("DOMContentLoaded", function() {
+      // select relevant elements on the pafe
+      const artwork_template = document.querySelector("[data-artwork-template]");
+		const artworks_container = document.querySelector("[data-artworks-container]");
+		const search = document.querySelector("[data-search]");
+
+      // create empty artworks array
+		let artworks = []
+
+      // execute function when input occurs, where e refers to the input object
+		search.addEventListener("input", e => {
+         // convert all input (characters) to lowercase
+			const value = e.target.value.toLowerCase()
+
+         // for each artwork/card in the artworks array
+			artworks.forEach(artwork => {
+            // set status to visible wwhen the artwork name or artist name includes input
+				const makeVisible =
+					artwork.name.toLowerCase().includes(value) ||
+					artwork.artist.toLowerCase().includes(value)
+            // set appearance to "hide", specified in css, whenever status is not visible
+				artwork.element.classList.toggle("hide", !makeVisible);
+			});
+		});
+
+      // get artwork info from app.py, using json
+		var data = {{ list | tojson | safe }};
+      // populate artworks array, filling up the template in html (see below)
+		artworks = data.map(artwork => {
+         // create a copy of the template
+			const card = artwork_template.content.cloneNode(true).children[0];
+         // create variable for each element in the template
+			const header = card.querySelector("[data-header]");
+			const body = card.querySelector("[data-body]");
+			const link = card.querySelector("[data-link]");
+
+         // assign value to the variables just created, using the list passed from app.py
+			header.textContent = artwork.name;
+			body.textContent = artwork.artist;
+			link.href = `/artwork/${artwork.artwork_id}`;
+
+         // show the card!
+			artworks_container.append(card);
+
+         // populate the new artworks array in the context of this js script, so that we can run the search function
+			return {
+				name: artwork.name,
+				artist: artwork.artist,
+				element: card
+			}
+      });
+
+	});
+
+</script>
+
+<!-- search bar -->
+<div class="search-wrapper">
+   <label for="search">Looking for something?</label>
+   <input autocomplete="off" autofocus="" class="form-control mx-auto w-auto" type="search" id="search" data-search>
+</div>
+
+<!-- small ID cards for artworks, to be searched & filtered -->
+<div class="artwork-cards" data-artworks-container>
+   <!-- template, populated by js script -->
+   <template data-artwork-template>
+      <div class="card">
+         <!-- each card has a linked artwork title, and the artist, tagged for js retrieval -->
+         <a href="#" target="_blank" data-link>
+            <div class="header" data-header></div>
+         </a>
+         <div class="body" data-body></div>
+   </template>
+</div>
+
+<!-- table of artworks -->
+<div class="table-container">
+   <table class="table">
+
+      <thead>
+         <tr>
+            <th class="text-top">Title</th>
+            <th class="text-top">Artist</th>
+            <th class="text-top">Year</th>
+            <th class="text-top">Snapshot</th>
+         </tr>
+      </thead>
+
+      <tbody>
+         <!-- using jinja to print information passed by app.py row by row -->
+         {% for item in list %}
+         <tr>
+            <td><a href="/artwork/{{item.artwork_id}}" class="text-title">{{item.name}}</a></td>
+            <td class="text-table">{{item.artist}}</td>
+            <td class="text-table">{{item.year}}</td>
+            <td><img src="{{url_for('static', filename=item.image_path)}}" alt="artwork" style="max-width: 300px; height: auto;"></td>
+         </tr>
+         {% endfor %}
+      </tbody>
+
+   </table>
+</div>
+
+{% endblock %}

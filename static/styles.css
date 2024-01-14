@@ -1,0 +1,167 @@
+body {
+	font-family: Helvetica;
+}
+
+p {
+	margin-bottom: 10px;
+}
+
+/* layout.html */
+.navbar-nav .nav-item .nav-link {
+	color: #FA5F55;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+/* catalog.html */
+.hide {
+	display: none;
+}
+
+.search-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+}
+
+.artwork-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 1rem;
+	margin: 2rem 0 2rem 0;
+}
+
+.card {
+	border: 2px dotted #ECF0F1;
+	padding: 1rem;
+}
+
+.card>a[data-link] {
+	color: black;
+}
+
+.card>a[data-link]>.header {
+	font-size: 12px;
+	margin-bottom: .25rem;
+}
+
+.card>.body {
+	font-size: 12px;
+	color: #7B7D7D;
+}
+
+.table-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 50px;
+
+}
+
+.table th,
+.table td,
+.table thead {
+	border: 2px dotted #ECF0F1;
+	text-align: left;
+}
+
+.text-top {
+	font-weight: normal;
+	color: #FA5F55;
+	text-align: center;
+}
+
+.text-title {
+	color: black;
+}
+
+.text-table {
+	color: #7B7D7D;
+}
+
+
+/* artwork.html */
+.artwork-container {
+	display: flex;
+	align-items: flex-start;
+}
+
+.artwork-descript {
+	text-align: left;
+	flex-grow: 1;
+	margin-left: 20px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+/* stars */
+.stars,
+.stars2 {
+	display: flex;
+	flex-direction: row-reverse;
+	color: gray;
+}
+
+.stars span,
+.stars2 span {
+	cursor: pointer;
+	transition: color .2s;
+	font-size: 25px;
+}
+
+.stars span:hover {
+	color: orange;
+}
+
+.stars span:hover~span {
+	color: orange;
+}
+
+/* Colors for clicked star */
+.stars span[data-clicked="true"] {
+	color: orange;
+}
+
+/* Colors for preceding stars */
+.stars span[data-clicked="true"]~span {
+	color: orange;
+}
+
+.stars span[data-clicked="false"] {
+	color: gray;
+}
+
+.stars2 span[data-clicked="true"] {
+	color: orange;
+}
+
+/* Colors for preceding stars */
+.stars2 span[data-clicked="true"]~span {
+	color: orange;
+}
+
+
+.rating-box {
+	display: flex;
+	align-items: left;
+	justify-content: left;
+}
+
+.block {
+	margin: 10px 0 10px 0;
+}
+
+.heading {
+	color: #FA5F55;
+	font-weight: bold;
+}
+
+.nocomment {
+	color: #B3B6B7
+}
